@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Michael's AI Mechanic V20</title>
+  <style>
+    :root{
+      --bg:#101418;
+      --panel:#182028;
+      --panel2:#202a34;
+      --text:#f4f7fa;
+      --muted:#aeb8c2;
+      --accent:#f0b429;
+      --accent2:#4ea1ff;
+      --danger:#ff6b6b;
+      --success:#44c27a;
+      --border:#2f3a45;
+      --shadow:0 10px 25px rgba(0,0,0,.25);
+      --radius:18px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:linear-gradient(180deg,#0f1317,#151b21);
+      color:var(--text);
+      min-height:100vh;
+    }
+
+    button,input,select,textarea{font:inherit}
+
+    .app{
+      max-width:1100px;
+      margin:0 auto;
+      padding:18px;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:18px;
+    }
+
+    .brand h1{
+      margin:0;
+      font-size:clamp(1.5rem,4vw,2.3rem);
+    }
+
+    .brand p{
+      margin:6px 0 0;
+      color:var(--muted);
+    }
+
+    .pill{
+      background:rgba(240,180,41,.14);
+      color:#ffd978;
+      border:1px solid rgba(240,180,41,.35);
+      padding:8px 12px;
+      border-radius:999px;
+      white-space:nowrap;
+      font-weight:700;
+      font-size:.9rem;
+    }
+
+    .screen{display:none}
+    .screen.active{display:block}
+
+    .hero{
+      background:linear-gradient(135deg,#202a34,#151c23);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:22px;
+      box-shadow:var(--shadow);
+      margin-bottom:18px;
+    }
+
+    .hero h2{margin:0 0 8px;font-size:1.6rem}
+    .hero p{margin:0;color:var(--muted);line-height:1.5}
+
+    .quick-grid,
+    .machine-grid,
+    .workspace-grid{
+      display:grid;
+      gap:14px;
+    }
+
+    .quick-grid{
+      grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+      margin-bottom:22px;
+    }
+
+    .machine-grid{
+      grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+    }
+
+    .workspace-grid{
+      grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+      margin-top:18px;
+    }
+
+    .card,
+    .machine-card,
+    .action-card{
+      border:1px solid var(--border);
+      background:var(--panel);
+      border-radius:16px;
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+
+    .card h3,
+    .machine-card h3,
+    .action-card h3{
+      margin:0 0 8px;
+    }
+
+    .card p,
+    .machine-card p,
+    .action-card p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.4;
+    }
+
+    .big-button,
+    .machine-card button,
+    .action-card button,
+    .toolbar button{
+      width:100%;
+      border:none;
+      border-radius:12px;
+      padding:13px 14px;
+      font-weight:700;
+      cursor:pointer;
+      transition:.2s ease;
+    }
+
+    .big-button{
+      background:var(--accent);
+      color:#111;
+      margin-top:14px;
+    }
+
+    .big-button:hover,
+    .machine-card button:hover,
+    .action-card button:hover,
+    .toolbar button:hover{
+      transform:translateY(-1px);
+      filter:brightness(1.05);
+    }
+
+    .machine-card button,
+    .action-card button{
+      background:var(--panel2);
+      color:var(--text);
+      margin-top:14px;
+      border:1px solid var(--border);
+    }
+
+    .machine-meta{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin:12px 0 0;
+    }
+
+    .tag{
+      font-size:.8rem;
+      padding:6px 9px;
+      border-radius:999px;
+      background:#111820;
+      border:1px solid var(--border);
+      color:var(--muted);
+    }
+
+    .section-title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin:22px 0 12px;
+    }
+
+    .section-title h2{margin:0;font-size:1.35rem}
+
+    .toolbar{
+      display:flex;
+      gap:10px;
+      margin-bottom:16px;
+      flex-wrap:wrap;
+    }
+
+    .toolbar button{
+      width:auto;
+      background:var(--panel2);
+      color:var(--text);
+      border:1px solid var(--border);
+    }
+
+    .toolbar .primary{
+      background:var(--accent2);
+      color:#fff;
+      border:none;
+    }
+
+    .workspace-header{
+      background:linear-gradient(135deg,#1e2b37,#172029);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:20px;
+      box-shadow:var(--shadow);
+    }
+
+    .workspace-header h2{margin:0 0 8px}
+    .workspace-header p{margin:0;color:var(--muted)}
+
+    .info-strip{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+      gap:10px;
+      margin-top:16px;
+    }
+
+    .info-box{
+      background:rgba(255,255,255,.035);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+    }
+
+    .info-box span{
+      display:block;
+      color:var(--muted);
+      font-size:.8rem;
+      margin-bottom:4px;
+    }
+
+    .empty-note{
+      margin-top:18px;
+      padding:16px;
+      border:1px dashed var(--border);
+      color:var(--muted);
+      border-radius:14px;
+      text-align:center;
+    }
+
+    .footer{
+      text-align:center;
+      color:var(--muted);
+      font-size:.82rem;
+      margin:28px 0 10px;
+    }
+
+
+    .coach-shell{
+      display:grid;
+      grid-template-columns:minmax(0,1.4fr) minmax(260px,.6fr);
+      gap:16px;
+      margin-top:18px;
+    }
+
+    .coach-panel{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:20px;
+      box-shadow:var(--shadow);
+    }
+
+    .coach-panel h3{margin-top:0}
+
+    .form-group{margin-bottom:16px}
+
+    .form-group label{
+      display:block;
+      margin-bottom:7px;
+      color:var(--muted);
+      font-weight:700;
+    }
+
+    .form-group select,
+    .form-group input,
+    .form-group textarea{
+      width:100%;
+      background:#111820;
+      color:var(--text);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+    }
+
+    .form-group textarea{
+      min-height:100px;
+      resize:vertical;
+    }
+
+    .choice-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+      gap:10px;
+      margin:14px 0;
+    }
+
+    .choice-grid button{
+      border:1px solid var(--border);
+      background:var(--panel2);
+      color:var(--text);
+      border-radius:12px;
+      padding:12px;
+      cursor:pointer;
+      font-weight:700;
+    }
+
+    .choice-grid button:hover{
+      transform:translateY(-1px);
+      filter:brightness(1.08);
+    }
+
+    .coach-question{
+      background:#111820;
+      border-left:4px solid var(--accent2);
+      border-radius:12px;
+      padding:16px;
+      margin:14px 0;
+      line-height:1.5;
+    }
+
+    .coach-progress{
+      height:10px;
+      background:#111820;
+      border:1px solid var(--border);
+      border-radius:999px;
+      overflow:hidden;
+      margin:10px 0 18px;
+    }
+
+    .coach-progress span{
+      display:block;
+      height:100%;
+      background:var(--accent2);
+      width:0%;
+      transition:width .25s ease;
+    }
+
+    .coach-log{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      max-height:420px;
+      overflow:auto;
+    }
+
+    .log-item{
+      background:#111820;
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+    }
+
+    .log-item strong{display:block;margin-bottom:4px}
+
+    .success-box{
+      border:1px solid rgba(68,194,122,.45);
+      background:rgba(68,194,122,.08);
+      border-radius:14px;
+      padding:16px;
+      margin-top:14px;
+    }
+
+    .danger-box{
+      border:1px solid rgba(255,107,107,.45);
+      background:rgba(255,107,107,.08);
+      border-radius:14px;
+      padding:16px;
+      margin-top:14px;
+    }
+
+
+    .weather-card{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      background:linear-gradient(135deg,#20364a,#172633);
+      border:1px solid #36556e;
+      border-radius:16px;
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+
+    .weather-left{
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
+
+    .weather-icon{
+      font-size:2.5rem;
+      line-height:1;
+    }
+
+    .weather-card h3{
+      margin:0 0 5px;
+    }
+
+    .weather-card p{
+      margin:0;
+      color:var(--muted);
+    }
+
+    .weather-badge{
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:999px;
+      padding:8px 11px;
+      color:#dcecff;
+      font-weight:700;
+      white-space:nowrap;
+    }
+
+    .saved-list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    .saved-card{
+      background:#111820;
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+    }
+
+
+    .vault-grid{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) minmax(280px,.7fr);
+      gap:16px;
+      margin-top:18px;
+    }
+
+    .vault-panel{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:20px;
+      box-shadow:var(--shadow);
+    }
+
+    .vault-panel h3{margin-top:0}
+
+    .search-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+
+    .search-row input,
+    .search-row select{
+      flex:1 1 220px;
+      background:#111820;
+      color:var(--text);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+    }
+
+    .search-row button{
+      border:none;
+      background:var(--accent2);
+      color:#fff;
+      border-radius:12px;
+      padding:12px 16px;
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    .vault-results{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .vault-card{
+      background:#111820;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:14px;
+    }
+
+    .vault-card h4{
+      margin:0 0 6px;
+    }
+
+    .vault-card p{
+      margin:5px 0;
+      color:var(--muted);
+      line-height:1.45;
+    }
+
+    .confidence{
+      display:inline-block;
+      margin-top:8px;
+      padding:6px 9px;
+      border-radius:999px;
+      background:rgba(78,161,255,.12);
+      border:1px solid rgba(78,161,255,.35);
+      color:#bdddff;
+      font-weight:700;
+      font-size:.82rem;
+    }
+
+    .parts-preview{
+      min-height:220px;
+      border:1px dashed var(--border);
+      border-radius:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      color:var(--muted);
+      padding:18px;
+      background:#111820;
+      overflow:hidden;
+    }
+
+    .parts-preview img{
+      max-width:100%;
+      max-height:320px;
+      border-radius:12px;
+      display:block;
+    }
+
+    .stat-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+      gap:10px;
+      margin-bottom:16px;
+    }
+
+    .stat-box{
+      background:#111820;
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      text-align:center;
+    }
+
+    .stat-box strong{
+      display:block;
+      font-size:1.35rem;
+      margin-bottom:4px;
+    }
+
+    @media (max-width:850px){
+      .vault-grid{grid-template-columns:1fr}
+    }
+
+    @media (max-width:800px){
+      .coach-shell{grid-template-columns:1fr}
+    }
+
+    @media (max-width:650px){
+      .topbar{
+        align-items:flex-start;
+        flex-direction:column;
+      }
+      .app{padding:12px}
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <h1>Michael's AI Mechanic</h1>
+        <p>V20.5.1 Garage AI Tools + Backup</p>
+      </div>
+      <div class="pill">Developer Preview</div>
+    </header>
+
+    <section id="dashboardScreen" class="screen active">
+      <div class="hero">
+        <h2>Garage Dashboard</h2>
+        <p>Choose a machine, continue a repair, or start a new job from one place.</p>
+      </div>
+
+      <div class="weather-card" style="margin-bottom:18px">
+        <div class="weather-left">
+          <div class="weather-icon" aria-label="Weather">🌤️</div>
+          <div>
+            <h3>Garage Weather</h3>
+            <p id="weatherMessage">Weather connection will be added in a later build.</p>
+          </div>
+        </div>
+        <div class="weather-badge">Mobile, AL</div>
+      </div>
+
+      <div class="quick-grid">
+        <div class="card">
+          <h3>🔧 Continue Last Repair</h3>
+          <p>Resume your latest project without searching through notes.</p>
+          <button class="big-button" onclick="openMachine('Snapper RE110')">Continue</button>
+        </div>
+
+        <div class="card">
+          <h3>➕ Start New Repair</h3>
+          <p>Pick a machine and begin a fresh repair session.</p>
+          <button class="big-button" onclick="openRepairCoach()">Start Repair</button>
+        </div>
+
+        <div class="card">
+          <h3>🤖 AI Repair Coach</h3>
+          <p>Step-by-step testing, notes, readings, and repair guidance.</p>
+          <button class="big-button" onclick="openRepairCoach()">Open Coach</button>
+        </div>
+      </div>
+
+
+      <div class="section-title">
+        <h2>AI Garage Tools</h2>
+      </div>
+
+      <div class="quick-grid">
+        <div class="card">
+          <h3>🧠 AI Knowledge Vault</h3>
+          <p>Search all saved repairs, notes, readings, parts, and lessons learned.</p>
+          <button class="big-button" onclick="openKnowledgeVault()">Open Vault</button>
+        </div>
+
+        <div class="card">
+          <h3>🔎 Find Similar Repairs</h3>
+          <p>Compare the current problem with repairs you have already completed.</p>
+          <button class="big-button" onclick="openSimilarRepairs()">Find Matches</button>
+        </div>
+
+        <div class="card">
+          <h3>📷 AI Parts Detector</h3>
+          <p>Add a part photo and record identification, part numbers, and fitment.</p>
+          <button class="big-button" onclick="openPartsDetector()">Identify Part</button>
+        </div>
+      </div>
+
+
+      <div class="section-title">
+        <h2>Backup & Restore</h2>
+      </div>
+
+      <div class="quick-grid">
+        <div class="card">
+          <h3>💾 Export Backup</h3>
+          <p>Download all saved repairs, Knowledge Vault notes, and parts records into one backup file.</p>
+          <button class="big-button" onclick="exportGarageBackup()">Export Backup</button>
+        </div>
+
+        <div class="card">
+          <h3>📥 Restore Backup</h3>
+          <p>Restore your garage data from a previously exported backup file.</p>
+          <input id="backupFileInput" type="file" accept=".json,application/json" style="margin-top:14px;width:100%" onchange="restoreGarageBackup(event)" />
+        </div>
+      </div>
+
+      <div class="section-title">
+        <h2>Equipment</h2>
+      </div>
+
+      <div class="quick-grid">
+        <div class="card">
+          <h3>🛠 My Equipment</h3>
+          <p>Open your equipment list and choose the machine you are working on.</p>
+          <button class="big-button" onclick="showEquipmentList()">View Equipment</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="equipmentScreen" class="screen">
+      <div class="toolbar">
+        <button onclick="showDashboard()">← Back to Dashboard</button>
+      </div>
+
+      <div class="hero">
+        <h2>My Equipment</h2>
+        <p>Select the machine or equipment you want to open.</p>
+      </div>
+
+      <div class="machine-grid">
+        <div class="machine-card">
+          <h3>Snapper RE110</h3>
+          <p>Rear-engine riding mower</p>
+          <div class="machine-meta">
+            <span class="tag">Current Project</span>
+            <span class="tag">Small Engine</span>
+          </div>
+          <button onclick="openMachine('Snapper RE110')">Open Machine</button>
+        </div>
+
+        <div class="machine-card">
+          <h3>Toro TimeCutter SS5000</h3>
+          <p>Zero-turn riding mower</p>
+          <div class="machine-meta">
+            <span class="tag">50-inch deck</span>
+            <span class="tag">Small Engine</span>
+          </div>
+          <button onclick="openMachine('Toro TimeCutter SS5000')">Open Machine</button>
+        </div>
+
+        <div class="machine-card">
+          <h3>Honda Civic</h3>
+          <p>Vehicle workspace</p>
+          <div class="machine-meta">
+            <span class="tag">Automotive</span>
+            <span class="tag">Repair History</span>
+          </div>
+          <button onclick="openMachine('Honda Civic')">Open Machine</button>
+        </div>
+
+        <div class="machine-card">
+          <h3>Ford F-150</h3>
+          <p>Truck workspace</p>
+          <div class="machine-meta">
+            <span class="tag">Automotive</span>
+            <span class="tag">Maintenance</span>
+          </div>
+          <button onclick="openMachine('Ford F-150')">Open Machine</button>
+        </div>
+
+        <div class="machine-card">
+          <h3>Stanley FATMAX</h3>
+          <p>Jump starter and power station</p>
+          <div class="machine-meta">
+            <span class="tag">Shop Equipment</span>
+          </div>
+          <button onclick="openMachine('Stanley FATMAX')">Open Machine</button>
+        </div>
+      </div>
+    </section>
+
+
+
+
+    <section id="knowledgeVaultScreen" class="screen">
+      <div class="toolbar">
+        <button onclick="showDashboard()">← Back to Dashboard</button>
+      </div>
+
+      <div class="hero">
+        <h2>AI Knowledge Vault</h2>
+        <p>Your searchable garage memory for repairs, notes, readings, results, and parts.</p>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-box"><strong id="vaultRepairCount">0</strong><span>Saved Repairs</span></div>
+        <div class="stat-box"><strong id="vaultNoteCount">0</strong><span>Logged Steps</span></div>
+        <div class="stat-box"><strong id="vaultPartCount">0</strong><span>Saved Parts</span></div>
+      </div>
+
+      <div class="vault-grid">
+        <div class="vault-panel">
+          <h3>Search the Vault</h3>
+          <div class="search-row">
+            <input id="vaultSearchInput" placeholder="Example: ignition coil, Toro, no spark" />
+            <select id="vaultMachineFilter">
+              <option value="">All equipment</option>
+              <option>Snapper RE110</option>
+              <option>Toro TimeCutter SS5000</option>
+              <option>Honda Civic</option>
+              <option>Ford F-150</option>
+              <option>Stanley FATMAX</option>
+            </select>
+            <button onclick="searchVault()">Search</button>
+          </div>
+          <div id="vaultResults" class="vault-results"></div>
+        </div>
+
+        <aside class="vault-panel">
+          <h3>Add Garage Knowledge</h3>
+          <div class="form-group">
+            <label for="vaultEntryMachine">Machine</label>
+            <select id="vaultEntryMachine">
+              <option value="">General garage knowledge</option>
+              <option>Snapper RE110</option>
+              <option>Toro TimeCutter SS5000</option>
+              <option>Honda Civic</option>
+              <option>Ford F-150</option>
+              <option>Stanley FATMAX</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="vaultEntryTitle">Title</label>
+            <input id="vaultEntryTitle" placeholder="Example: Ignition coil air gap" />
+          </div>
+          <div class="form-group">
+            <label for="vaultEntryText">Knowledge, lesson, or note</label>
+            <textarea id="vaultEntryText" placeholder="Record what worked, test values, part numbers, or anything worth remembering."></textarea>
+          </div>
+          <button class="big-button" onclick="saveVaultEntry()">Save to Vault</button>
+        </aside>
+      </div>
+    </section>
+
+    <section id="similarRepairsScreen" class="screen">
+      <div class="toolbar">
+        <button onclick="showDashboard()">← Back to Dashboard</button>
+      </div>
+
+      <div class="hero">
+        <h2>Find Similar Repairs</h2>
+        <p>Search your previous repair sessions for matching symptoms, machines, tests, and fixes.</p>
+      </div>
+
+      <div class="vault-panel">
+        <div class="search-row">
+          <select id="similarMachine">
+            <option value="">Any equipment</option>
+            <option>Snapper RE110</option>
+            <option>Toro TimeCutter SS5000</option>
+            <option>Honda Civic</option>
+            <option>Ford F-150</option>
+            <option>Stanley FATMAX</option>
+          </select>
+          <input id="similarSymptom" placeholder="Describe the symptom or part" />
+          <button onclick="findSimilarRepairs()">Find Similar Repairs</button>
+        </div>
+        <div id="similarResults" class="vault-results"></div>
+      </div>
+    </section>
+
+    <section id="partsDetectorScreen" class="screen">
+      <div class="toolbar">
+        <button onclick="showDashboard()">← Back to Dashboard</button>
+      </div>
+
+      <div class="hero">
+        <h2>AI Parts Detector</h2>
+        <p>Add a part photo, then record the identification, part number, fitment, and replacement notes.</p>
+      </div>
+
+      <div class="vault-grid">
+        <div class="vault-panel">
+          <h3>Part Photo</h3>
+          <div id="partsPreview" class="parts-preview">No part photo selected.</div>
+          <div class="form-group" style="margin-top:14px">
+            <label for="partPhotoInput">Choose a photo</label>
+            <input id="partPhotoInput" type="file" accept="image/*" onchange="previewPartPhoto(event)" />
+          </div>
+        </div>
+
+        <div class="vault-panel">
+          <h3>Identification Record</h3>
+          <div class="form-group">
+            <label for="partMachine">Machine</label>
+            <select id="partMachine">
+              <option value="">Unknown or general</option>
+              <option>Snapper RE110</option>
+              <option>Toro TimeCutter SS5000</option>
+              <option>Honda Civic</option>
+              <option>Ford F-150</option>
+              <option>Stanley FATMAX</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="partName">Part name</label>
+            <input id="partName" placeholder="Example: Ignition coil" />
+          </div>
+          <div class="form-group">
+            <label for="partNumber">Part number</label>
+            <input id="partNumber" placeholder="Example: 590454" />
+          </div>
+          <div class="form-group">
+            <label for="partFitment">Machines it fits</label>
+            <input id="partFitment" placeholder="Example: Briggs 28-series engines" />
+          </div>
+          <div class="form-group">
+            <label for="partReplacement">Replacement or notes</label>
+            <textarea id="partReplacement" placeholder="Record replacement options, connector details, measurements, or where it was found."></textarea>
+          </div>
+          <button class="big-button" onclick="savePartRecord()">Save Part Record</button>
+        </div>
+      </div>
+
+      <div class="vault-panel" style="margin-top:16px">
+        <h3>Saved Parts</h3>
+        <div id="savedPartsList" class="vault-results"></div>
+      </div>
+    </section>
+
+    <section id="repairCoachScreen" class="screen">
+      <div class="toolbar">
+        <button onclick="showDashboard()">← Back to Dashboard</button>
+        <button onclick="showEquipmentList()">My Equipment</button>
+      </div>
+
+      <div class="hero">
+        <h2>AI Repair Coach</h2>
+        <p>Choose a machine and symptom. The coach will walk you through one test at a time and save your repair notes.</p>
+      </div>
+
+      <div class="coach-shell">
+        <div class="coach-panel">
+          <h3>Current Repair Session</h3>
+
+          <div class="coach-progress">
+            <span id="coachProgressBar"></span>
+          </div>
+
+          <div id="coachSetup">
+            <div class="form-group">
+              <label for="coachMachine">Machine</label>
+              <select id="coachMachine">
+                <option value="">Select equipment</option>
+                <option>Snapper RE110</option>
+                <option>Toro TimeCutter SS5000</option>
+                <option>Honda Civic</option>
+                <option>Ford F-150</option>
+                <option>Stanley FATMAX</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="coachSymptom">Symptom</label>
+              <select id="coachSymptom">
+                <option value="">Select a symptom</option>
+                <option>Won't start</option>
+                <option>Cranks but won't fire</option>
+                <option>Bogs down</option>
+                <option>No movement</option>
+                <option>Battery or charging issue</option>
+                <option>Electrical problem</option>
+                <option>Other</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="coachOpeningNotes">What are you seeing or hearing?</label>
+              <textarea id="coachOpeningNotes" placeholder="Example: Starter clicks, engine does not turn, battery was charged overnight."></textarea>
+            </div>
+
+            <button class="big-button" onclick="startCoach()">Begin Diagnosis</button>
+          </div>
+
+          <div id="coachActive" style="display:none">
+            <div id="coachQuestion" class="coach-question"></div>
+            <div id="coachChoices" class="choice-grid"></div>
+
+            <div class="form-group">
+              <label for="coachReading">Meter reading or test result</label>
+              <input id="coachReading" placeholder="Example: 12.6 volts, no spark, 90 PSI" />
+            </div>
+
+            <div class="form-group">
+              <label for="coachNotes">Repair notes</label>
+              <textarea id="coachNotes" placeholder="Add anything you noticed during this step."></textarea>
+            </div>
+
+            <div class="toolbar">
+              <button onclick="saveStepNote()">Save Step Notes</button>
+              <button onclick="restartCoach()">Restart Diagnosis</button>
+            </div>
+          </div>
+
+          <div id="coachResult"></div>
+        </div>
+
+        <aside class="coach-panel">
+          <h3>Repair Log</h3>
+          <div id="coachLog" class="coach-log">
+            <div class="empty-note">Your answers and test results will appear here.</div>
+          </div>
+
+          <h3 style="margin-top:22px">Saved Repairs</h3>
+          <div id="savedRepairs" class="saved-list"></div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="workspaceScreen" class="screen">
+      <div class="toolbar">
+        <button onclick="showDashboard()">← Back to Dashboard</button>
+        <button class="primary" onclick="openRepairCoach(currentMachine)">Start Repair</button>
+      </div>
+
+      <div class="workspace-header">
+        <h2 id="machineTitle">Machine Workspace</h2>
+        <p id="machineSubtitle">All repair tools, history, parts, and information for this machine.</p>
+
+        <div class="info-strip">
+          <div class="info-box">
+            <span>Status</span>
+            Ready
+          </div>
+          <div class="info-box">
+            <span>Last Repair</span>
+            Not entered
+          </div>
+          <div class="info-box">
+            <span>Maintenance</span>
+            No reminder set
+          </div>
+          <div class="info-box">
+            <span>Saved Videos</span>
+            0
+          </div>
+        </div>
+      </div>
+
+      <div class="workspace-grid">
+        <div class="action-card">
+          <h3>🧰 Diagnose</h3>
+          <p>Start symptom-based troubleshooting.</p>
+          <button onclick="showFeature('Diagnose')">Open</button>
+        </div>
+
+        <div class="action-card">
+          <h3>🤖 Repair Coach</h3>
+          <p>Get step-by-step guidance and save test results.</p>
+          <button onclick="openRepairCoach(currentMachine)">Open</button>
+        </div>
+
+        <div class="action-card">
+          <h3>📋 Repair History</h3>
+          <p>Review past repairs and solutions.</p>
+          <button onclick="showFeature('Repair History')">Open</button>
+        </div>
+
+        <div class="action-card">
+          <h3>🔩 Parts</h3>
+          <p>Track parts, numbers, photos, and fitment.</p>
+          <button onclick="showFeature('Parts')">Open</button>
+        </div>
+
+        <div class="action-card">
+          <h3>📖 Manuals</h3>
+          <p>Keep service manuals and wiring diagrams together.</p>
+          <button onclick="showFeature('Manuals')">Open</button>
+        </div>
+
+        <div class="action-card">
+          <h3>🎥 Videos</h3>
+          <p>Save YouTube repair videos and notes.</p>
+          <button onclick="showFeature('Videos')">Open</button>
+        </div>
+
+        <div class="action-card">
+          <h3>⚡ Tests</h3>
+          <p>Record voltage, resistance, compression, and spark tests.</p>
+          <button onclick="showFeature('Tests')">Open</button>
+        </div>
+
+        <div class="action-card">
+          <h3>🛠 Maintenance</h3>
+          <p>Track oil, filters, belts, blades, and service dates.</p>
+          <button onclick="showFeature('Maintenance')">Open</button>
+        </div>
+
+        <div class="action-card">
+          <h3>📷 Photos</h3>
+          <p>Store before, during, and after repair photos.</p>
+          <button onclick="showFeature('Photos')">Open</button>
+        </div>
+
+        <div class="action-card">
+          <h3>📝 Notes</h3>
+          <p>Save symptoms, observations, and lessons learned.</p>
+          <button onclick="showFeature('Notes')">Open</button>
+        </div>
+
+        <div class="action-card">
+          <h3>📐 Specifications</h3>
+          <p>Store torque specs, fluids, capacities, and settings.</p>
+          <button onclick="showFeature('Specifications')">Open</button>
+        </div>
+
+        <div class="action-card">
+          <h3>🔎 Similar Repairs</h3>
+          <p>Find repairs involving the same symptom or part.</p>
+          <button onclick="openSimilarRepairs(currentMachine)">Open</button>
+        </div>
+
+        <div class="action-card">
+          <h3>🧠 Knowledge Vault</h3>
+          <p>Search saved repairs, notes, readings, and lessons.</p>
+          <button onclick="openKnowledgeVault(currentMachine)">Open</button>
+        </div>
+
+        <div class="action-card">
+          <h3>📷 Parts Detector</h3>
+          <p>Record a photographed part, number, fitment, and replacement.</p>
+          <button onclick="openPartsDetector(currentMachine)">Open</button>
+        </div>
+      </div>
+
+      <div id="featureOutput" class="empty-note">
+        Select a workspace tool above.
+      </div>
+    </section>
+
+    <div class="footer">
+      Michael's AI Mechanic V20.5.1 — Complete Prototype with Export and Restore Backup
+    </div>
+  </main>
+
+  <script>
+    let currentMachine = '';
+    let coachStep = 0;
+    let coachSession = null;
+
+    const diagnosticFlows = {
+      "Won't start": [
+        {
+          q: "First, verify the battery. Is battery voltage at least 12.4 volts with the key off?",
+          choices: ["Yes", "No", "Not tested"],
+          next: { "Yes": 1, "No": "battery", "Not tested": 1 }
+        },
+        {
+          q: "When you turn the key, does the starter crank the engine?",
+          choices: ["Yes", "No", "Only clicks"],
+          next: { "Yes": 2, "No": "starter", "Only clicks": "starter" }
+        },
+        {
+          q: "Do you have spark at the spark plug?",
+          choices: ["Yes", "No", "Not tested"],
+          next: { "Yes": 3, "No": "spark", "Not tested": 3 }
+        },
+        {
+          q: "Is fresh fuel reaching the carburetor or fuel injector?",
+          choices: ["Yes", "No", "Not sure"],
+          next: { "Yes": 4, "No": "fuel", "Not sure": 4 }
+        },
+        {
+          q: "Are all safety switches satisfied, including PTO off, brake set, and seat switch as required?",
+          choices: ["Yes", "No", "Not sure"],
+          next: { "Yes": "compression", "No": "safety", "Not sure": "safety" }
+        }
+      ],
+      "Cranks but won't fire": [
+        {
+          q: "Do you have a strong spark at the plug?",
+          choices: ["Yes", "No", "Not tested"],
+          next: { "Yes": 1, "No": "spark", "Not tested": 1 }
+        },
+        {
+          q: "Does the engine briefly run when a small amount of approved starting fluid is used safely?",
+          choices: ["Yes", "No", "Not tested"],
+          next: { "Yes": "fuel", "No": 2, "Not tested": 2 }
+        },
+        {
+          q: "Is compression within the expected range for this engine?",
+          choices: ["Yes", "No", "Not tested"],
+          next: { "Yes": "timing", "No": "compression", "Not tested": "compression" }
+        }
+      ],
+      "Bogs down": [
+        {
+          q: "Does it bog down only under load, such as when blades engage or when driving?",
+          choices: ["Yes", "No", "Not sure"],
+          next: { "Yes": 1, "No": 2, "Not sure": 1 }
+        },
+        {
+          q: "Check for restricted airflow, dull or binding blades, belt drag, and a clogged fuel filter. Did you find a restriction?",
+          choices: ["Yes", "No", "Not yet"],
+          next: { "Yes": "restriction", "No": 2, "Not yet": 2 }
+        },
+        {
+          q: "Does partially applying the choke make it run better?",
+          choices: ["Yes", "No", "No choke"],
+          next: { "Yes": "lean", "No": "ignition", "No choke": "ignition" }
+        }
+      ],
+      "No movement": [
+        {
+          q: "Is the drive belt installed, tensioned, and turning?",
+          choices: ["Yes", "No", "Not checked"],
+          next: { "Yes": 1, "No": "drivebelt", "Not checked": 1 }
+        },
+        {
+          q: "Are the bypass levers, parking brake, and transmission release controls in the correct positions?",
+          choices: ["Yes", "No", "Not sure"],
+          next: { "Yes": 2, "No": "controls", "Not sure": "controls" }
+        },
+        {
+          q: "Is the transmission input pulley or friction drive turning when drive is commanded?",
+          choices: ["Yes", "No", "Not checked"],
+          next: { "Yes": "transmission", "No": "linkage", "Not checked": "linkage" }
+        }
+      ],
+      "Battery or charging issue": [
+        {
+          q: "What is the battery voltage with the engine off?",
+          choices: ["12.4V or higher", "Below 12.4V", "Not tested"],
+          next: { "12.4V or higher": 1, "Below 12.4V": "battery", "Not tested": 1 }
+        },
+        {
+          q: "With the engine running at operating speed, is voltage higher than the engine-off reading?",
+          choices: ["Yes", "No", "Not tested"],
+          next: { "Yes": "parasitic", "No": "charging", "Not tested": "charging" }
+        }
+      ],
+      "Electrical problem": [
+        {
+          q: "Have you confirmed battery voltage and clean, tight battery and ground connections?",
+          choices: ["Yes", "No", "Not yet"],
+          next: { "Yes": 1, "No": "connections", "Not yet": "connections" }
+        },
+        {
+          q: "Does the affected circuit have power at its fuse and input side?",
+          choices: ["Yes", "No", "Not tested"],
+          next: { "Yes": "switch", "No": "powerfeed", "Not tested": "powerfeed" }
+        }
+      ],
+      "Other": [
+        {
+          q: "Start with the basics: fuel, spark, compression, airflow, battery, and safety switches. Which area looks most suspicious?",
+          choices: ["Fuel", "Spark", "Compression", "Electrical", "Mechanical"],
+          next: {
+            "Fuel": "fuel",
+            "Spark": "spark",
+            "Compression": "compression",
+            "Electrical": "electrical",
+            "Mechanical": "mechanical"
+          }
+        }
+      ]
+    };
+
+    const results = {
+      battery: "Charge and load-test the battery. Clean and tighten both battery terminals and the engine/frame ground. Replace the battery if it fails a load test.",
+      starter: "Focus on the starter circuit: battery cables, grounds, fuse, ignition switch, safety interlocks, starter solenoid, and starter motor.",
+      spark: "Focus on ignition: test the plug, plug wire, ignition coil, kill wire, safety circuit, and coil air gap.",
+      fuel: "Focus on fuel delivery: fresh fuel, tank vent, shutoff valve, filter, pump, carburetor bowl, jets, or injector supply.",
+      compression: "Perform a compression or leak-down test. Inspect valve adjustment, head gasket, rings, valve timing, and mechanical condition.",
+      safety: "Inspect the PTO, brake, seat, neutral, and parking-brake switches and their connectors. A failed or misadjusted interlock can prevent cranking or spark.",
+      timing: "Spark and fuel are present, so check ignition timing, flywheel key, valve timing, compression, and excessive valve clearance.",
+      restriction: "Remove the restriction or binding load, service the belt/blades, and retest under load.",
+      lean: "The engine is likely running lean. Inspect the fuel cap vent, filter, fuel line, carburetor jets, intake gasket, and vacuum leaks.",
+      ignition: "Check for weak spark under load, failing ignition coil, incorrect plug gap, overheating, or a restricted exhaust.",
+      drivebelt: "Repair or replace the drive belt and inspect pulleys, idlers, tension springs, and belt routing.",
+      controls: "Correct the bypass lever, parking brake, or release-control position. Inspect linkage adjustment and safety-switch operation.",
+      transmission: "The input is turning, so inspect transmission fluid where serviceable, internal drive condition, axle keys, hubs, and final drive.",
+      linkage: "Inspect and adjust shift linkage, friction wheel, idlers, belt tension, keys, and input pulleys.",
+      parasitic: "Charging appears present. Test for a parasitic drain, weak battery capacity, loose terminals, or accessories left powered.",
+      charging: "Test the stator/alternator output, regulator-rectifier, charging diode, wiring, fuse, and grounds.",
+      connections: "Clean and tighten battery terminals, grounds, fuse connections, and harness plugs before continuing.",
+      switch: "Power reaches the circuit. Test the control switch, relay, output wiring, connector pins, and the component itself.",
+      powerfeed: "Trace power backward through the fuse, relay, ignition switch, harness, and battery feed.",
+      electrical: "Use a wiring diagram and test for power, ground, voltage drop, switch operation, relays, and connector damage.",
+      mechanical: "Inspect for seized parts, binding pulleys, damaged belts, loose keys, broken linkage, and internal engine or transmission problems."
+    };
+
+    function hideAllScreens(){
+      document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+    }
+
+    function openMachine(name){
+      currentMachine = name;
+      document.getElementById('machineTitle').textContent = name;
+      document.getElementById('machineSubtitle').textContent =
+        'All repair tools, history, parts, videos, manuals, and maintenance for ' + name + '.';
+
+      hideAllScreens();
+      document.getElementById('workspaceScreen').classList.add('active');
+      document.getElementById('featureOutput').textContent =
+        'Select a workspace tool for ' + name + '.';
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    function showEquipmentList(){
+      hideAllScreens();
+      document.getElementById('equipmentScreen').classList.add('active');
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    function showDashboard(){
+      hideAllScreens();
+      document.getElementById('dashboardScreen').classList.add('active');
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    function openRepairCoach(machineName=''){
+      hideAllScreens();
+      document.getElementById('repairCoachScreen').classList.add('active');
+      if(machineName){
+        document.getElementById('coachMachine').value = machineName;
+      }
+      renderSavedRepairs();
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    function startCoach(){
+      const machine = document.getElementById('coachMachine').value;
+      const symptom = document.getElementById('coachSymptom').value;
+      const openingNotes = document.getElementById('coachOpeningNotes').value.trim();
+
+      if(!machine || !symptom){
+        alert('Please choose a machine and symptom.');
+        return;
+      }
+
+      currentMachine = machine;
+      coachStep = 0;
+      coachSession = {
+        id: Date.now(),
+        machine,
+        symptom,
+        openingNotes,
+        started: new Date().toLocaleString(),
+        log: []
+      };
+
+      document.getElementById('coachSetup').style.display = 'none';
+      document.getElementById('coachActive').style.display = 'block';
+      document.getElementById('coachResult').innerHTML = '';
+      updateLog('Session started', machine + ' — ' + symptom + (openingNotes ? ' — ' + openingNotes : ''));
+      renderCoachQuestion();
+    }
+
+    function renderCoachQuestion(){
+      const flow = diagnosticFlows[coachSession.symptom] || diagnosticFlows["Other"];
+      const step = flow[coachStep];
+
+      if(!step){
+        finishCoach('mechanical');
+        return;
+      }
+
+      document.getElementById('coachQuestion').innerHTML =
+        '<strong>Step ' + (coachStep + 1) + '</strong><br>' + step.q;
+
+      const choices = document.getElementById('coachChoices');
+      choices.innerHTML = '';
+      step.choices.forEach(choice => {
+        const button = document.createElement('button');
+        button.textContent = choice;
+        button.onclick = () => answerCoach(choice, step.next[choice]);
+        choices.appendChild(button);
+      });
+
+      const progress = Math.min(90, ((coachStep + 1) / flow.length) * 85);
+      document.getElementById('coachProgressBar').style.width = progress + '%';
+    }
+
+    function answerCoach(choice, next){
+      const question = document.getElementById('coachQuestion').innerText.replace(/\n/g, ' ');
+      const reading = document.getElementById('coachReading').value.trim();
+      const notes = document.getElementById('coachNotes').value.trim();
+
+      const detail = choice +
+        (reading ? ' | Reading: ' + reading : '') +
+        (notes ? ' | Notes: ' + notes : '');
+
+      coachSession.log.push({ question, answer: detail });
+      updateLog('Answer', detail);
+
+      document.getElementById('coachReading').value = '';
+      document.getElementById('coachNotes').value = '';
+
+      if(typeof next === 'number'){
+        coachStep = next;
+        renderCoachQuestion();
+      }else{
+        finishCoach(next);
+      }
+    }
+
+    function saveStepNote(){
+      if(!coachSession) return;
+      const reading = document.getElementById('coachReading').value.trim();
+      const notes = document.getElementById('coachNotes').value.trim();
+
+      if(!reading && !notes){
+        alert('Enter a reading or note first.');
+        return;
+      }
+
+      const detail = (reading ? 'Reading: ' + reading : '') +
+        (reading && notes ? ' | ' : '') +
+        (notes ? 'Notes: ' + notes : '');
+
+      coachSession.log.push({ question: 'Manual note', answer: detail });
+      updateLog('Saved note', detail);
+      document.getElementById('coachReading').value = '';
+      document.getElementById('coachNotes').value = '';
+    }
+
+    function finishCoach(resultKey){
+      const recommendation = results[resultKey] || results.mechanical;
+      document.getElementById('coachProgressBar').style.width = '100%';
+      document.getElementById('coachQuestion').innerHTML =
+        '<strong>Diagnosis checkpoint complete</strong><br>Review the recommendation below.';
+      document.getElementById('coachChoices').innerHTML = '';
+
+      document.getElementById('coachResult').innerHTML =
+        '<div class="success-box">' +
+        '<strong>Most likely next area to inspect</strong><br><br>' +
+        recommendation +
+        '<br><br><button class="big-button" onclick="saveRepairSession()">💾 Save This Repair</button>' +
+        '</div>';
+
+      coachSession.result = recommendation;
+      updateLog('Recommendation', recommendation);
+    }
+
+    function saveRepairSession(){
+      if(!coachSession) return;
+
+      const repairs = JSON.parse(localStorage.getItem('michaelAiMechanicRepairs') || '[]');
+      coachSession.saved = new Date().toLocaleString();
+      repairs.unshift(coachSession);
+      localStorage.setItem('michaelAiMechanicRepairs', JSON.stringify(repairs.slice(0, 30)));
+
+      renderSavedRepairs();
+      alert('Repair session saved on this device.');
+    }
+
+    function renderSavedRepairs(){
+      const container = document.getElementById('savedRepairs');
+      if(!container) return;
+
+      const repairs = JSON.parse(localStorage.getItem('michaelAiMechanicRepairs') || '[]');
+      if(!repairs.length){
+        container.innerHTML = '<div class="empty-note">No saved repair sessions yet.</div>';
+        return;
+      }
+
+      container.innerHTML = repairs.slice(0, 6).map(repair => `
+        <div class="saved-card">
+          <strong>${escapeHtml(repair.machine)}</strong><br>
+          <span>${escapeHtml(repair.symptom)}</span><br>
+          <small>${escapeHtml(repair.saved || repair.started)}</small>
+        </div>
+      `).join('');
+    }
+
+    function updateLog(title, text){
+      const log = document.getElementById('coachLog');
+      if(log.querySelector('.empty-note')) log.innerHTML = '';
+
+      const item = document.createElement('div');
+      item.className = 'log-item';
+      item.innerHTML = '<strong>' + escapeHtml(title) + '</strong>' + escapeHtml(text);
+      log.prepend(item);
+    }
+
+    function restartCoach(){
+      coachStep = 0;
+      coachSession = null;
+      document.getElementById('coachSetup').style.display = 'block';
+      document.getElementById('coachActive').style.display = 'none';
+      document.getElementById('coachResult').innerHTML = '';
+      document.getElementById('coachProgressBar').style.width = '0%';
+      document.getElementById('coachLog').innerHTML =
+        '<div class="empty-note">Your answers and test results will appear here.</div>';
+    }
+
+    function showFeature(feature){
+      document.getElementById('featureOutput').innerHTML =
+        '<strong>' + feature + '</strong><br>' +
+        'This section is connected to the ' + currentMachine +
+        ' workspace and is ready for the next build.';
+    }
+
+    function escapeHtml(value){
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+
+    let currentPartPhoto = '';
+
+    function openKnowledgeVault(machineName=''){
+      hideAllScreens();
+      document.getElementById('knowledgeVaultScreen').classList.add('active');
+      if(machineName){
+        document.getElementById('vaultMachineFilter').value = machineName;
+        document.getElementById('vaultEntryMachine').value = machineName;
+      }
+      refreshVaultStats();
+      searchVault();
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    function openSimilarRepairs(machineName=''){
+      hideAllScreens();
+      document.getElementById('similarRepairsScreen').classList.add('active');
+      if(machineName){
+        document.getElementById('similarMachine').value = machineName;
+      }
+      findSimilarRepairs();
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    function openPartsDetector(machineName=''){
+      hideAllScreens();
+      document.getElementById('partsDetectorScreen').classList.add('active');
+      if(machineName){
+        document.getElementById('partMachine').value = machineName;
+      }
+      renderSavedParts();
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    function getRepairData(){
+      return JSON.parse(localStorage.getItem('michaelAiMechanicRepairs') || '[]');
+    }
+
+    function getVaultEntries(){
+      return JSON.parse(localStorage.getItem('michaelAiMechanicVault') || '[]');
+    }
+
+    function getPartRecords(){
+      return JSON.parse(localStorage.getItem('michaelAiMechanicParts') || '[]');
+    }
+
+    function buildVaultRecords(){
+      const repairs = getRepairData().map(repair => ({
+        type: 'Repair',
+        machine: repair.machine || '',
+        title: repair.symptom || 'Repair Session',
+        text: [
+          repair.openingNotes || '',
+          repair.result || '',
+          ...(repair.log || []).map(item => (item.question || '') + ' ' + (item.answer || ''))
+        ].join(' '),
+        date: repair.saved || repair.started || ''
+      }));
+
+      const notes = getVaultEntries().map(entry => ({
+        type: 'Knowledge',
+        machine: entry.machine || '',
+        title: entry.title || 'Garage Note',
+        text: entry.text || '',
+        date: entry.saved || ''
+      }));
+
+      const parts = getPartRecords().map(part => ({
+        type: 'Part',
+        machine: part.machine || '',
+        title: part.name || 'Saved Part',
+        text: [part.number, part.fitment, part.replacement].filter(Boolean).join(' '),
+        date: part.saved || ''
+      }));
+
+      return [...repairs, ...notes, ...parts];
+    }
+
+    function refreshVaultStats(){
+      const repairs = getRepairData();
+      const notes = repairs.reduce((sum, repair) => sum + (repair.log || []).length, 0) + getVaultEntries().length;
+      const parts = getPartRecords();
+
+      document.getElementById('vaultRepairCount').textContent = repairs.length;
+      document.getElementById('vaultNoteCount').textContent = notes;
+      document.getElementById('vaultPartCount').textContent = parts.length;
+    }
+
+    function searchVault(){
+      const query = (document.getElementById('vaultSearchInput')?.value || '').trim().toLowerCase();
+      const machine = document.getElementById('vaultMachineFilter')?.value || '';
+      const container = document.getElementById('vaultResults');
+      if(!container) return;
+
+      const records = buildVaultRecords().filter(record => {
+        const machineMatch = !machine || record.machine === machine;
+        const haystack = (record.type + ' ' + record.machine + ' ' + record.title + ' ' + record.text).toLowerCase();
+        const queryMatch = !query || query.split(/\s+/).every(term => haystack.includes(term));
+        return machineMatch && queryMatch;
+      });
+
+      if(!records.length){
+        container.innerHTML = '<div class="empty-note">No matching garage knowledge found yet.</div>';
+        return;
+      }
+
+      container.innerHTML = records.map(record => `
+        <div class="vault-card">
+          <h4>${escapeHtml(record.title)}</h4>
+          <p><strong>${escapeHtml(record.type)}</strong>${record.machine ? ' — ' + escapeHtml(record.machine) : ''}</p>
+          <p>${escapeHtml(record.text || 'No additional notes.')}</p>
+          <p><small>${escapeHtml(record.date)}</small></p>
+        </div>
+      `).join('');
+    }
+
+    function saveVaultEntry(){
+      const machine = document.getElementById('vaultEntryMachine').value;
+      const title = document.getElementById('vaultEntryTitle').value.trim();
+      const text = document.getElementById('vaultEntryText').value.trim();
+
+      if(!title || !text){
+        alert('Enter a title and knowledge note.');
+        return;
+      }
+
+      const entries = getVaultEntries();
+      entries.unshift({
+        id: Date.now(),
+        machine,
+        title,
+        text,
+        saved: new Date().toLocaleString()
+      });
+      localStorage.setItem('michaelAiMechanicVault', JSON.stringify(entries.slice(0, 100)));
+
+      document.getElementById('vaultEntryTitle').value = '';
+      document.getElementById('vaultEntryText').value = '';
+      refreshVaultStats();
+      searchVault();
+      alert('Knowledge saved to the vault.');
+    }
+
+    function tokenize(text){
+      return String(text || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .split(/\s+/)
+        .filter(word => word.length > 2);
+    }
+
+    function similarityScore(query, repair, selectedMachine){
+      const queryWords = new Set(tokenize(query));
+      const repairText = [
+        repair.machine,
+        repair.symptom,
+        repair.openingNotes,
+        repair.result,
+        ...(repair.log || []).map(item => (item.question || '') + ' ' + (item.answer || ''))
+      ].join(' ');
+      const repairWords = new Set(tokenize(repairText));
+
+      let overlap = 0;
+      queryWords.forEach(word => {
+        if(repairWords.has(word)) overlap += 1;
+      });
+
+      let score = queryWords.size ? (overlap / queryWords.size) * 75 : 20;
+      if(selectedMachine && repair.machine === selectedMachine) score += 20;
+      if(!selectedMachine && repair.machine) score += 5;
+      return Math.min(99, Math.round(score));
+    }
+
+    function findSimilarRepairs(){
+      const machine = document.getElementById('similarMachine')?.value || '';
+      const symptom = (document.getElementById('similarSymptom')?.value || '').trim();
+      const container = document.getElementById('similarResults');
+      if(!container) return;
+
+      const repairs = getRepairData()
+        .map(repair => ({
+          repair,
+          score: similarityScore(symptom, repair, machine)
+        }))
+        .filter(item => (!machine || item.repair.machine === machine || item.score >= 25))
+        .sort((a, b) => b.score - a.score);
+
+      if(!repairs.length){
+        container.innerHTML =
+          '<div class="empty-note">No saved repair sessions are available yet. Save repairs in AI Repair Coach, then search here.</div>';
+        return;
+      }
+
+      container.innerHTML = repairs.slice(0, 10).map(({repair, score}) => `
+        <div class="vault-card">
+          <h4>${escapeHtml(repair.machine || 'Unknown Machine')}</h4>
+          <p><strong>Symptom:</strong> ${escapeHtml(repair.symptom || 'Not entered')}</p>
+          <p><strong>Original notes:</strong> ${escapeHtml(repair.openingNotes || 'None')}</p>
+          <p><strong>Solution or next area:</strong> ${escapeHtml(repair.result || 'No final result saved')}</p>
+          <span class="confidence">${score}% match</span>
+        </div>
+      `).join('');
+    }
+
+    function previewPartPhoto(event){
+      const file = event.target.files && event.target.files[0];
+      const preview = document.getElementById('partsPreview');
+      currentPartPhoto = '';
+
+      if(!file){
+        preview.textContent = 'No part photo selected.';
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(loadEvent){
+        currentPartPhoto = loadEvent.target.result;
+        preview.innerHTML = '<img src="' + currentPartPhoto + '" alt="Selected part photo">';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function savePartRecord(){
+      const machine = document.getElementById('partMachine').value;
+      const name = document.getElementById('partName').value.trim();
+      const number = document.getElementById('partNumber').value.trim();
+      const fitment = document.getElementById('partFitment').value.trim();
+      const replacement = document.getElementById('partReplacement').value.trim();
+
+      if(!name){
+        alert('Enter the part name or your best identification.');
+        return;
+      }
+
+      const parts = getPartRecords();
+      parts.unshift({
+        id: Date.now(),
+        machine,
+        name,
+        number,
+        fitment,
+        replacement,
+        photo: currentPartPhoto,
+        saved: new Date().toLocaleString()
+      });
+
+      // Limit photo-heavy storage to avoid exceeding browser localStorage.
+      localStorage.setItem('michaelAiMechanicParts', JSON.stringify(parts.slice(0, 20)));
+
+      document.getElementById('partName').value = '';
+      document.getElementById('partNumber').value = '';
+      document.getElementById('partFitment').value = '';
+      document.getElementById('partReplacement').value = '';
+      document.getElementById('partPhotoInput').value = '';
+      document.getElementById('partsPreview').textContent = 'No part photo selected.';
+      currentPartPhoto = '';
+
+      renderSavedParts();
+      alert('Part record saved on this device.');
+    }
+
+    function renderSavedParts(){
+      const container = document.getElementById('savedPartsList');
+      if(!container) return;
+      const parts = getPartRecords();
+
+      if(!parts.length){
+        container.innerHTML = '<div class="empty-note">No saved part records yet.</div>';
+        return;
+      }
+
+      container.innerHTML = parts.map(part => `
+        <div class="vault-card">
+          <h4>${escapeHtml(part.name)}</h4>
+          <p>${part.machine ? '<strong>Machine:</strong> ' + escapeHtml(part.machine) + '<br>' : ''}
+          ${part.number ? '<strong>Part number:</strong> ' + escapeHtml(part.number) + '<br>' : ''}
+          ${part.fitment ? '<strong>Fits:</strong> ' + escapeHtml(part.fitment) + '<br>' : ''}
+          ${part.replacement ? '<strong>Notes:</strong> ' + escapeHtml(part.replacement) : ''}</p>
+          ${part.photo ? '<img src="' + part.photo + '" alt="Saved part" style="max-width:180px;max-height:130px;border-radius:10px;margin-top:8px">' : ''}
+          <p><small>${escapeHtml(part.saved)}</small></p>
+        </div>
+      `).join('');
+    }
+
+
+    function exportGarageBackup(){
+      const backup = {
+        app: "Michael's AI Mechanic",
+        version: "20.5",
+        exportedAt: new Date().toISOString(),
+        repairs: JSON.parse(localStorage.getItem('michaelAiMechanicRepairs') || '[]'),
+        vault: JSON.parse(localStorage.getItem('michaelAiMechanicVault') || '[]'),
+        parts: JSON.parse(localStorage.getItem('michaelAiMechanicParts') || '[]')
+      };
+
+      const json = JSON.stringify(backup, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const date = new Date().toISOString().slice(0,10);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = 'michaels-ai-mechanic-backup-' + date + '.json';
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+      alert('Garage backup downloaded.');
+    }
+
+    function restoreGarageBackup(event){
+      const file = event.target.files && event.target.files[0];
+      if(!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(loadEvent){
+        try{
+          const backup = JSON.parse(loadEvent.target.result);
+
+          if(!backup || typeof backup !== 'object'){
+            throw new Error('Invalid backup file.');
+          }
+
+          const repairs = Array.isArray(backup.repairs) ? backup.repairs : [];
+          const vault = Array.isArray(backup.vault) ? backup.vault : [];
+          const parts = Array.isArray(backup.parts) ? backup.parts : [];
+
+          const confirmed = confirm(
+            'Restore this backup?\n\n' +
+            repairs.length + ' repairs\n' +
+            vault.length + ' Knowledge Vault entries\n' +
+            parts.length + ' parts records\n\n' +
+            'This will replace the current saved data in this browser.'
+          );
+
+          if(!confirmed){
+            event.target.value = '';
+            return;
+          }
+
+          localStorage.setItem('michaelAiMechanicRepairs', JSON.stringify(repairs));
+          localStorage.setItem('michaelAiMechanicVault', JSON.stringify(vault));
+          localStorage.setItem('michaelAiMechanicParts', JSON.stringify(parts));
+
+          renderSavedRepairs();
+          refreshVaultStats();
+          renderSavedParts();
+          searchVault();
+          findSimilarRepairs();
+
+          event.target.value = '';
+          alert('Garage backup restored successfully.');
+        }catch(error){
+          event.target.value = '';
+          alert("Could not restore this file. Please choose a valid Michael's AI Mechanic backup.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    renderSavedRepairs();
+    refreshVaultStats();
+    renderSavedParts();
+
+  </script>
+</body>
+</html>
